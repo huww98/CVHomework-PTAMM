@@ -46,6 +46,9 @@ Game * LoadAGame( std::string sName, std::string sGameDataFileName)
 //  else if( sName == "MY_AR_GAME" )  {
 //    pGame = new MyARGame();
 //  }
+  else if( sName == "Video" )  {
+    pGame = new VideoGame();
+  }
   else
   {
     cout << "ERROR Unknown game: " << sName << endl;
@@ -71,6 +74,7 @@ void InitializeGameMenu()
   GUI.ParseLine("Menu.AddMenuButton Demos Eyes \"LoadGame Eyes\" Root");
   GUI.ParseLine("Menu.AddMenuButton Demos Shooter \"LoadGame Shooter\" Root");
   GUI.ParseLine("Menu.AddMenuButton Demos Models \"LoadGame Models\" Root");
+  GUI.ParseLine("Menu.AddMenuButton Demos Video \"LoadGame Video\" Root");
   
   ///@TODO Add you games here using this template:
   // GUI.ParseLine("Menu.AddMenuButton Demos BUTTONLABEL \"LoadGame MY_AR_GAME\" Root");

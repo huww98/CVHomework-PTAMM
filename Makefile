@@ -53,6 +53,7 @@ OBJECTS=	main.o\
 		Utils.o\
 		ShooterGame.o\
 		ShooterGameTarget.o\
+		VideoGame.o\
 		$(3DSFILES)
 
 
@@ -67,7 +68,7 @@ CALIB_OBJECTS=	GLWindow2.o\
 All: PTAMM CameraCalibrator
 
 PTAMM: $(OBJECTS)
-	$(CC) -o PTAMM $(OBJECTS) $(LINKFLAGS)
+	$(CC) -o PTAMM $(OBJECTS) $(LINKFLAGS) -lopencv_core -lopencv_videoio -lopencv_imgproc
 
 CameraCalibrator:$(CALIB_OBJECTS)
 	$(CC) -o CameraCalibrator $(CALIB_OBJECTS) $(LINKFLAGS)

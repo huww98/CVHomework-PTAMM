@@ -17,6 +17,7 @@
 #include "EyeGame.h"
 #include "ModelsGame.h"
 #include "ShooterGame.h"
+#include "VideoGame.h"
 
 ///@TODO Place the header files for your games here.
 

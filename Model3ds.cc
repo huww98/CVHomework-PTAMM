@@ -143,8 +143,12 @@ void Model3DS::Draw()
     glPopMatrix();
   }
 
+  if( GV3::get<int>("ModelsGame.SelfRotate", "1", SILENT) ) {
+    mso3SelfRotate *= SO3<>::exp(makeVector(0., 0., 0.05));
+  }
+
   glPushMatrix();
-  glMultMatrix( mse3MfromW * mse3ModelOffset );
+  glMultMatrix( mso3SelfRotate * (mse3MfromW * mse3ModelOffset) );
   glScaled( mdScale, mdScale, mdScale );
   glTranslate(mv3Offset);
 

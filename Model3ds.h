@@ -81,6 +81,7 @@ class Model3DS{
     std::string msName;             // Name of the model
     double mdScaleMult;             // the scale multiplier for the model
     double mdScale;                 // the model's scale;
+    SO3<> mso3SelfRotate;
     SE3<> mse3MfromW;               // Model's pose and location in the world.
     SE3<> mse3ModelOffset;          // Initial rotation of model to line up with the axes
     
