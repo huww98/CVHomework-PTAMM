@@ -3,6 +3,7 @@
 #include "OpenGL.h"
 #include <gvars3/GStringUtil.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "ATANCamera.h"
 #include "MapMaker.h"
 #include "Tracker.h"

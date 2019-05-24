@@ -1,4 +1,5 @@
 // Copyright 2008 Isis Innovation Limited
+#include <unistd.h>
 #include "OpenGL.h"
 #include "Tracker.h"
 #include "MEstimator.h"

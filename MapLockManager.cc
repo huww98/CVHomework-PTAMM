@@ -11,6 +11,7 @@
 
 #include "MapLockManager.h"
 
+#include <unistd.h>
 #include <iostream>
 
 #ifdef WIN32

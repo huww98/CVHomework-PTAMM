@@ -20,6 +20,7 @@
 #include "Games.h"
 #include "Utils.h"
 
+#include <unistd.h>
 #include <iostream>
 #include <iomanip>
 #include <cvd/vision.h>
