@@ -1368,18 +1368,6 @@ void MapMaker::AlignToMarker(KeyFrame *pKF)
   cerr << " detected " << corners.size() << " marker(s)." << endl;
   
   auto& camera = pKF->Camera;
-  // Mat cameraMatrix = Mat::zeros(3, 3, CV_64F);
-  // cameraMatrix.at<double>(0, 0) = camera.Focal()[0];
-  // cameraMatrix.at<double>(1, 1) = camera.Focal()[1];
-  // cameraMatrix.at<double>(0, 2) = camera.Center()[0];
-  // cameraMatrix.at<double>(1, 2) = camera.Center()[1];
-  // cameraMatrix.at<double>(2, 2) = 1;
-  // vector<double> distCoeffs(4); // Don't know how to use this
-
-  // std::vector<cv::Vec3d> rvects, tvects;
-  // estimatePoseSingleMarkers(corners, 1, cameraMatrix, distCoeffs, rvects, tvects);
-  // SE3<> markerToCamera();
-
   auto se3WfromC = pKF->se3CfromW.inverse();
   auto cameraPos = se3WfromC.get_translation();
   vector<TooN::Vector<3>> worldCornerPos(4);
@@ -1404,18 +1392,15 @@ void MapMaker::AlignToMarker(KeyFrame *pKF)
     avgCornerDistance += sqrt(diff * diff);
   }
   avgCornerDistance /= 4;
-  cerr << "markerCenterPos: " << markerCenterPos[0] << ", " << markerCenterPos[1] << endl;
   mpMap->vMarkerCorners = worldCornerPos;
   mpMap->vMarkerCorners.insert(mpMap->vMarkerCorners.begin(), markerCenterPos);
 
   TooN::Vector<3> diff = worldCornerPos[0] - markerCenterPos;
   double rotate = -M_PI * 3 / 4 + atan2(diff[1], diff[0]);
-  cerr << "rotate: " << rotate / M_PI * 180 << endl;
   SE3<> se3(SO3<>::exp(makeVector(0,0,-rotate)), -markerCenterPos);
   ApplyGlobalTransformationToMap(se3);
 
   double halfMarkerLength = avgCornerDistance / sqrt(2);
-  cerr << "halfMarkerLength: " << halfMarkerLength << endl;
   double targetHalfMarkerLength = 0.1;
   ApplyGlobalScaleToMap(targetHalfMarkerLength / halfMarkerLength);
 }
