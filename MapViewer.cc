@@ -145,6 +145,27 @@ void MapViewer::DrawGrid()
 //   mGLWindow.PrintString("z");
 }
 
+void MapViewer::DrawMarker() {
+  if (mpViewingMap->vMarkerCorners.empty()) {
+    return;
+  }
+
+  SetupFrustum();
+  SetupModelView();
+  glLineWidth(2);
+  
+  auto& corners = mpViewingMap->vMarkerCorners;
+  glBegin(GL_LINE_STRIP);
+	glColor3f(0,1,1);
+  glVertex(corners[0]);
+  glVertex(corners[1]);
+	glColor3f(0,1,0);
+  glVertex(corners[2]);
+  glVertex(corners[3]);
+  glVertex(corners[4]);
+  glVertex(corners[1]);
+  glEnd();
+}
 
 /**
  * Draw the map
@@ -178,6 +199,7 @@ void MapViewer::DrawMap(SE3<> se3CamFromWorld)
   glEnable(GL_DEPTH_TEST);
   DrawGrid();
   DrawMapDots();
+  DrawMarker();
 
   if( mpViewingMap == mpMap ) {
     DrawCamera(se3CamFromWorld);

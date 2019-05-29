@@ -42,6 +42,7 @@ class MapViewer
     
     void DrawGrid();
     void DrawMapDots();
+    void DrawMarker();
     void DrawCamera(SE3<> se3, bool bSmall=false);
     void SetupFrustum();
     void SetupModelView(SE3<> se3WorldFromCurrent = SE3<>());

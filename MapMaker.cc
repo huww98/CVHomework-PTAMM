@@ -17,6 +17,9 @@
 #include <gvars3/instances.h>
 #include <fstream>
 #include <algorithm>
+#include <numeric>
+
+#include <opencv2/aruco.hpp>
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -496,6 +499,7 @@ bool MapMaker::InitFromStereo(KeyFrame &kF,
 
   // Rotate and translate the map so the dominant plane is at z=0:
   ApplyGlobalTransformationToMap(CalcPlaneAligner());
+  AlignToMarker(pkFirst);
   mpMap->bGood = true;
   se3TrackerPose = pkSecond->se3CfromW;
 
@@ -571,6 +575,9 @@ void MapMaker::ApplyGlobalTransformationToMap(SE3<> se3NewFromOld)
         se3NewFromOld * mpMap->vpPoints[i]->v3WorldPos;
     mpMap->vpPoints[i]->RefreshPixelVectors();
   }
+  for (auto& p : mpMap->vMarkerCorners) {
+    p = se3NewFromOld * p;
+  }
 }
 
 // Applies a global scale factor to the map
@@ -585,6 +592,9 @@ void MapMaker::ApplyGlobalScaleToMap(double dScale)
     (*mpMap->vpPoints[i]).v3PixelRight_W *= dScale;
     (*mpMap->vpPoints[i]).v3PixelDown_W *= dScale;
     (*mpMap->vpPoints[i]).RefreshPixelVectors();
+  }
+  for (auto& p : mpMap->vMarkerCorners) {
+    p *= dScale;
   }
 }
 
@@ -1336,6 +1346,78 @@ SE3<> MapMaker::CalcPlaneAligner()
   se3Aligner.get_translation() = -v3RMean;
 
   return se3Aligner;
+}
+
+void MapMaker::AlignToMarker(KeyFrame *pKF)
+{
+  using namespace cv;
+  using namespace cv::aruco;
+
+  auto& im = pKF->aLevels[0].im;
+  cv::Mat cvim = cv::Mat(im.size().y, im.size().x, CV_8UC1, im.data(), im.row_stride() * sizeof(CVD::byte));
+
+  auto dic = getPredefinedDictionary(DICT_4X4_50);
+  vector<vector<cv::Point2f>> corners;
+  vector<int> ids;
+  cerr << "Marker detecting...";
+  detectMarkers(cvim, dic, corners, ids);
+  if (corners.empty()) {
+    cerr << " not detected" << endl;
+    return;
+  }
+  cerr << " detected " << corners.size() << " marker(s)." << endl;
+  
+  auto& camera = pKF->Camera;
+  // Mat cameraMatrix = Mat::zeros(3, 3, CV_64F);
+  // cameraMatrix.at<double>(0, 0) = camera.Focal()[0];
+  // cameraMatrix.at<double>(1, 1) = camera.Focal()[1];
+  // cameraMatrix.at<double>(0, 2) = camera.Center()[0];
+  // cameraMatrix.at<double>(1, 2) = camera.Center()[1];
+  // cameraMatrix.at<double>(2, 2) = 1;
+  // vector<double> distCoeffs(4); // Don't know how to use this
+
+  // std::vector<cv::Vec3d> rvects, tvects;
+  // estimatePoseSingleMarkers(corners, 1, cameraMatrix, distCoeffs, rvects, tvects);
+  // SE3<> markerToCamera();
+
+  auto se3WfromC = pKF->se3CfromW.inverse();
+  auto cameraPos = se3WfromC.get_translation();
+  vector<TooN::Vector<3>> worldCornerPos(4);
+
+  for (int i = 0; i < 4; i++) {
+    auto& c = corners[0][i]; // Only use first marker
+    auto unprojected = camera.UnProject(makeVector(c.x, c.y));
+    // Find world corner pos at z=0
+    TooN::Vector<3> v3Unprojected = makeVector(unprojected[0], unprojected[1], 1);
+    TooN::Vector<3> worldDir = se3WfromC * v3Unprojected - cameraPos;
+    worldDir *= cameraPos[2] / -worldDir[2];
+    auto wPos = cameraPos + worldDir;
+    assert(abs(wPos[2]) < 1e-6);
+    wPos[2] = 0;
+    worldCornerPos[i] = wPos;
+  }
+
+  TooN::Vector<3> markerCenterPos = std::accumulate(worldCornerPos.begin(), worldCornerPos.end(), TooN::Vector<3>({0., 0., 0.})) / 4;
+  double avgCornerDistance = 0;
+  for (auto & p : worldCornerPos) {
+    TooN::Vector<3> diff = p - markerCenterPos;
+    avgCornerDistance += sqrt(diff * diff);
+  }
+  avgCornerDistance /= 4;
+  cerr << "markerCenterPos: " << markerCenterPos[0] << ", " << markerCenterPos[1] << endl;
+  mpMap->vMarkerCorners = worldCornerPos;
+  mpMap->vMarkerCorners.insert(mpMap->vMarkerCorners.begin(), markerCenterPos);
+
+  TooN::Vector<3> diff = worldCornerPos[0] - markerCenterPos;
+  double rotate = -M_PI * 3 / 4 + atan2(diff[1], diff[0]);
+  cerr << "rotate: " << rotate / M_PI * 180 << endl;
+  SE3<> se3(SO3<>::exp(makeVector(0,0,-rotate)), -markerCenterPos);
+  ApplyGlobalTransformationToMap(se3);
+
+  double halfMarkerLength = avgCornerDistance / sqrt(2);
+  cerr << "halfMarkerLength: " << halfMarkerLength << endl;
+  double targetHalfMarkerLength = 0.1;
+  ApplyGlobalScaleToMap(targetHalfMarkerLength / halfMarkerLength);
 }
 
 // Calculates the depth(z-) distribution of map points visible in a keyframe

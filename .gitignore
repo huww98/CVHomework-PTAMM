@@ -3,4 +3,10 @@
 
 /CameraCalibrator
 /PTAMM
+/drawMarker
+
 /camera.cfg
+/marker*.png
+
+/dependencies
+/dependencies.bak

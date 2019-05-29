@@ -65,20 +65,22 @@ CALIB_OBJECTS=	GLWindow2.o\
 		ATANCamera.o \
 		CameraCalibrator.o
 
-All: PTAMM CameraCalibrator
+All: PTAMM CameraCalibrator drawMarker
 
 PTAMM: $(OBJECTS)
-	$(CC) -o PTAMM $(OBJECTS) $(LINKFLAGS) -lopencv_core -lopencv_videoio -lopencv_imgproc
+	$(CC) -o PTAMM $(OBJECTS) $(LINKFLAGS) -lopencv_core -lopencv_videoio -lopencv_imgproc -lopencv_aruco
 
 CameraCalibrator:$(CALIB_OBJECTS)
 	$(CC) -o CameraCalibrator $(CALIB_OBJECTS) $(LINKFLAGS)
 
+drawMarker: drawMarker.cc
+	$(CC) -o drawMarker drawMarker.cc -lopencv_core -lopencv_aruco -lopencv_imgcodecs
 
 %.o: %.cc
 	$(CC) $< -o $@ -c $(COMPILEFLAGS) $(EXTRA_CFLAGS)
 
 clean:
-	rm *.o
+	rm *.o drawMarker
 
 
 depend:

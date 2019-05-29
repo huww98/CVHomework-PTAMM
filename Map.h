@@ -46,6 +46,7 @@ class Map
     std::vector<MapPoint*> vpPoints;
     std::vector<MapPoint*> vpPointsTrash;
     std::vector<KeyFrame*> vpKeyFrames;
+    std::vector<TooN::Vector<3>> vMarkerCorners;
 
     // These have been moved from MapMaker, as now have multiple maps
     std::vector<KeyFrame*> vpKeyFrameQueue;  // Queue of keyframes from the tracker waiting to be processed

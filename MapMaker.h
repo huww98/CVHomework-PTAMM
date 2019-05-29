@@ -58,6 +58,7 @@ class MapMaker : protected CVD::Thread
 
     // Functions for starting the map from scratch:
     SE3<> CalcPlaneAligner();
+    void AlignToMarker(KeyFrame *pKF);
     void ApplyGlobalTransformationToMap(SE3<> se3NewFromOld);
     void ApplyGlobalScaleToMap(double dScale);
     

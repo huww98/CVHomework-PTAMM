@@ -45,6 +45,7 @@ void VideoGame::Init()
 void VideoGame::Draw3D(const GLWindow2 &glWindow, Map &map, SE3<> se3CfromW)
 {
     glEnable(GL_TEXTURE_2D);
+    glColor4f(1,1,1,1);
 
     glBindTexture(GL_TEXTURE_2D, gl_texId[mnFrameCounter]);
     glBegin(GL_QUADS);
