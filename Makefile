@@ -15,8 +15,8 @@ EXTRA_CFLAGS:= -DENABLE_MODELS_GAME
 # Edit the lines below to point to any needed include and link paths
 # Or to change the compiler's optimization flags
 CC = g++
-COMPILEFLAGS = -I $(HOME)/local/include -D_LINUX -D_REENTRANT -Wall  -O3 -march=nocona -msse3 -fno-strict-aliasing
-LINKFLAGS = -L $(HOME)/local/lib -lGVars3 -lcvd $(3DSLIB) -lGL -lGLU -llapack
+COMPILEFLAGS = -D_LINUX -D_REENTRANT -Wall  -O3 -march=nocona -msse3 -fno-strict-aliasing
+LINKFLAGS = -lGVars3 -lcvd $(3DSLIB) -lGL -lGLU -llapack
 
 # Edit this line to change video source
 VIDEOSOURCE = VideoSource_Linux_V4L.o

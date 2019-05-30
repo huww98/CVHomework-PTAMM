@@ -1,0 +1,14 @@
+docker/Dockerfile
+.dockerignore
+.gitignore
+
+**/*.o
+**/*.md
+.vscode
+
+/CameraCalibrator
+/PTAMM
+/drawMarker
+
+/dependencies
+/dependencies.bak
